@@ -19,7 +19,8 @@ set -o nounset
 set -o pipefail
 
 # readonly EDITOR="ema"
-readonly EDITOR="xdg-open"
+# readonly EDITOR="xdg-open"
+readonly EDITOR="open"
 
 # * Main Functions
 
@@ -214,6 +215,10 @@ function NoteFind() {
 
 # *** Search
 function NoteSearch() {
+    RGSearch "$@"
+}
+
+function RecollSearch() {
     COMMAND="${script_dir}/NoteRecollSearch.sh"
     echo "Running "${COMMAND}" "${1}""
 
@@ -222,6 +227,22 @@ function NoteSearch() {
     ## Only try and open something that is non-empty
     if [ "$FILES" != "" ]; then
         echo "${FILES}" | sed -e s+^+\"+ -e s+$+\"+ | xargs -n 1  "${EDITOR}"
+    fi
+}
+
+function RGSearch() {
+    if [[ $# < 2 ]]; then
+        echo 'Error: search term was not provided.'
+        return
+    fi
+    local match=$(
+      rg --color=always --smart-case --line-number "$2" "$1" |
+        fzf --ansi --no-multi --delimiter : \
+        --preview "bat --language md --color=always --line-range {2}: {1}"
+      )
+    local file=$(echo "$match" | cut -d':' -f1)
+    if [[ -n $file ]]; then
+      vim "$file" +$(echo "$match" | cut -d':' -f2)
     fi
 }
 
@@ -267,17 +288,17 @@ function RofiHelp() {
 
 # *** Note Search
 
-function NoteSearch() {
-    COMMAND="${script_dir}/NoteRecollSearch.sh"
-    echo "Running "${COMMAND}" "${1}""
-
-    FILES="$("${COMMAND}" "${@:-}")"
-
-    ## Only try and open something that is non-empty
-    if [ "$FILES" != "" ]; then
-        echo "${FILES}" | sed -e s+^+\"+ -e s+$+\"+ | xargs -n 1  "${EDITOR}"
-    fi
-}
+#function NoteSearch() {
+#    COMMAND="${script_dir}/NoteRecollSearch.sh"
+#    echo "Running "${COMMAND}" "${1}""
+#
+#    FILES="$("${COMMAND}" "${@:-}")"
+#
+#    ## Only try and open something that is non-empty
+#    if [ "$FILES" != "" ]; then
+#        echo "${FILES}" | sed -e s+^+\"+ -e s+$+\"+ | xargs -n 1  "${EDITOR}"
+#    fi
+#}
 
 
 # *** Tags
@@ -487,7 +508,7 @@ makeNewNote () {
 
     mdcat "${FILE}"
     echo -e "Succesfully Created:\n "${FILE}""
-    nvim + "${FILE}"
+    vim + "${FILE}"
 
 
 }

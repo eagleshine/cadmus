@@ -109,33 +109,33 @@ SkimGrep () {
 
 	find . -type f \(  -name "*.org" -o -name "*.md" \) |\
 sk --ansi -m -c 'rg -l -t markdown -t org -t txt --ignore-case "{}"'    \
-   --preview "bat --style snip {} 2> /dev/null                          \
-        --color=always --line-range :500                       \
+   --preview "bat --language md --style auto {} 2> /dev/null                          \
+        --color=always --line-range :1500                       \
         --terminal-width 80                                    \
         --theme=TwoDark                                       |\
             rg --pretty --colors  --context 20 {cq}                \
-                --no-line-number --ignore-case                     \
+                --no-line-number --smart-case                     \
                 --colors 'match:fg:21,39,200'                      \
                 --colors 'line:style:nobold'                       \
                 --colors 'match:style:bold'                        \
                 --colors 'match:bg:30,200,30'"                     \
-     --bind 'ctrl-f:interactive,pgup:preview-page-up,pgdn:preview-page-down'    \
+     --bind 'ctrl-f:interactive,ctrl-p:preview-page-up,ctrl-n:preview-page-down'    \
      --bind 'ctrl-w:execute-silent(echo {}    |\
          xargs realpath                       |\
-         xclip -selection clipboard)'                                           \
-     --bind 'alt-w:execute-silent(echo {} | xclip -selection clipboard)'        \
-     --bind 'alt-v:execute-silent(code -a {}),alt-e:execute-silent(emacs {})'   \
-     --bind 'ctrl-o:execute-silent(xdg-open {})'                                \
-     --bind 'alt-y:execute-silent(cat {} | xclip -selection clipboard)'         \
-     --bind 'alt-o:execute-silent(cat {}      |\
+         pbcopy)'                                           \
+     --bind 'ctrl-u:execute-silent(echo {} | pbcopy)'        \
+     --bind 'ctrl-v:execute-silent(code -a {}),ctrl-e:execute-silent(emacs {})'   \
+     --bind 'ctrl-o:execute-silent(open {})'                                \
+     --bind 'ctrl-y:execute-silent(cat {} | pbcopy)'         \
+     --bind 'ctrl-h:execute-silent(cat {}      |\
          pandoc -f markdown -t html --mathml  |\
-         xclip -selection clipboard)' \
-     --bind 'alt-f:execute-silent(echo {}        |\
+         pbcopy)' \
+     --bind 'ctrl-d:execute-silent(echo {}        |\
          xargs dirname                           |\
          xargs cd; cat {}                        |\
          pandoc -f markdown -t dokuwiki --mathml |\
-         xclip -selection clipboard)'            \
-     --color=fg:#f8f8f2,bg:-1,matched:#6272a4,current_fg:#50fa7b,current_bg:#381070,border:#ff79c6,prompt:#bd93f9,query:#bd93f9,marker:#f1fa8c,header:#f1fa8c
+         pbcopy)'            \
+     #--color=fg:#f8f8f2,bg:-1,matched:#6272a4,current_fg:#50fa7b,current_bg:#381070,border:#ff79c6,prompt:#bd93f9,query:#bd93f9,marker:#f1fa8c,header:#f1fa8c
 
 }
 
